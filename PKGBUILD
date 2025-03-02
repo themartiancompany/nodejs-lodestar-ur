@@ -3,9 +3,13 @@
 # Maintainer: Truocolo <truocolo@aol.com>
 # Maintainer: Pellegrino Prevete (tallero) <pellegrinoprevete@gmail.com>
 
+_os="$( \
+  uname \
+    -o)"
+_node="nodejs"
 _source="npm"
 _pkg="lodestar"
-pkgname="nodejs-${_pkg}"
+pkgname="${_node}-${_pkg}"
 pkgver=1.27.1
 pkgrel=1
 _pkgdesc=(
@@ -13,7 +17,13 @@ _pkgdesc=(
 )
 pkgdesc="${_pkgdesc[*]}"
 arch=(
-  'any'
+  'x86_64'
+  'arm'
+  'aarch64'
+  'armv7l'
+  'mips'
+  'pentium4'
+  'i686'
 )
 _http="https://github.com"
 _ns="chainsafe"
@@ -23,7 +33,7 @@ license=(
   "LGPL"
 )
 depends=(
-  'nodejs'
+  "${_node}"
 )
 makedepends=(
   'npm'
@@ -51,6 +61,68 @@ noextract=(
 sha256sums=(
   "${_sum}"
 )
+
+_android_quirk() {
+  local \
+    _tools_bin \
+    _clang \
+    _compiler_dir \
+    _compiler
+  cd \
+    "${srcdir}/${_tarname}"
+  if [[ "${_os}" == "Android" ]] && \
+     [[ "${_arch}" == "armv7l" ]]; then
+    _clang="$( \
+      command \
+        -v \
+        clang)"
+    _tools_bin="undefined/toolchains/llvm/prebuilt/linux-x86_64/bin"
+    _compiler_dir="${srcdir}/${_tarname}/${_tools_bin}"
+    _compiler="${_compiler_dir}/armv7a-linux-androideabi24-clang"
+    mkdir \
+      -p \
+      "${_compiler_dir}"
+    ln \
+      -s \
+      "${_clang}" \
+      "${_compiler}" || \
+      true
+  fi
+  cd \
+    "${srcdir}/${_tarname}"
+}
+
+_android_gyp_quirk() {
+  local \
+    _gyp_include \
+    _ndk_check
+  _gyp_include="${HOME}/.gyp/include.gypi"
+  if [[ ! -e "${_gyp_include}" ]]; then
+    mkdir \
+      -p \
+      "$(dirname \
+           "${_gyp_include}")"
+    echo \
+      "{'variables':{'android_ndk_path':''}}" > \
+      "${_gyp_include}"
+  elif [[ -e "${_gyp_include}" ]]; then
+    _ndk_check="$( \
+      cat \
+        "${_gyp_include}" | \
+      grep "android_ndk_path")"
+    if [[ "${_ndk_check}" == "" ]]; then
+      echo \
+        "You should probably add" \
+        "\"{'variables':{'android_ndk_path':''}}\"" \
+        "to '${_gyp_include}'."
+    fi
+  fi
+}
+
+prepare() {
+  _android_gyp_quirk
+  # _android_quirk  
+}
 
 package() {
   local \
