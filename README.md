@@ -1,4 +1,4 @@
-# `nodejs-ethers`
+# `nodejs-lodestar`
 
 universal recipe for [user repo](../themartiancompany/ur).
 
