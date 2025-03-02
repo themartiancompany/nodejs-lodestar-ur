@@ -109,7 +109,8 @@ _android_gyp_quirk() {
     _ndk_check="$( \
       cat \
         "${_gyp_include}" | \
-      grep "android_ndk_path")"
+      grep \
+        "android_ndk_path")"
     if [[ "${_ndk_check}" == "" ]]; then
       echo \
         "You should probably add" \
