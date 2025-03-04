@@ -202,10 +202,13 @@ _c_kzg_build() {
   mkdir \
     -p \
     "node_modules"
-  cp \
-    -r \
-    "${_node_path}/c-kzg" \
-    "node_modules"
+  yarn \
+    add \
+    "file:${_node_path}/c-kzg"
+  # cp \
+  #   -r \
+  #   "${_node_path}/c-kzg" \
+  #   "node_modules"
   # npm \
   #   "${_npm_opts[@]}" \
   #   install \
