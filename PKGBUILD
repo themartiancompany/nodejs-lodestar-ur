@@ -40,6 +40,13 @@ elif [[ "${_os}" == "Android" && \
 	"${_arch}" == "aarch64" ) ]]; then
   _source="github"
 fi
+# As of 25/3/4
+# chainsafe says it's not safe to
+# install the npm package because of
+# the possibility of dependencies
+# tamperings
+# https://chainsafe.github.io/lodestar/run/getting-started/installation/#build-from-source
+_source="github"
 _pkg=lodestar
 pkgname="${_node}-${_pkg}"
 pkgver=1.27.1.1
