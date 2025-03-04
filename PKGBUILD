@@ -178,6 +178,12 @@ _c_kzg_build() {
     _node_path \
     _npm_opts=()
   _npm_opts+=(
+   # I'm nobody to say anything,
+   # but this npm program seems kinda
+   # untrustable in its naming and
+   # defaulting options choice
+   # https://github.com/npm/cli/issues/5965
+   # https://github.com/npm/cli/issues/5844
     --install-links="false"
   )
   _node_path="$( \
@@ -192,10 +198,17 @@ _c_kzg_build() {
     "repository."
   cd \
     "${srcdir}/${_tarname}"
-  npm \
-    "${_npm_opts[@]}" \
-    install \
-      "${_node_path}/c-kzg"
+  mkdir \
+    -p \
+    "node_modules"
+  cp \
+    -r \
+    "${_node_path}/c-kzg" \
+    "node_modules"
+  # npm \
+  #   "${_npm_opts[@]}" \
+  #   install \
+  #     "${_node_path}/c-kzg"
 }
 
 _lodestar_build() {
