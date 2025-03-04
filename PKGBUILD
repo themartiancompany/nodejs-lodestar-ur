@@ -27,11 +27,25 @@
 _os="$( \
   uname \
     -o)"
+_arch="$( \
+  uname \
+    -m)"
 _node="nodejs"
-_source="npm"
-_pkg="lodestar"
+_source="github"
+if [[ "${_os}" == "GNU/Linux" && \
+      "${_arch}" == "x86_64" ]]; then
+  _source="npm"
+elif [[ "${_os}" == "Android" && \
+      ( "${_arch}" == "armv7l" || \
+        "${_arch}" == "arm" || \
+	"${_arch}" == "aarch64" ) ]]; then
+  _source="github"
+fi
+_pkg=lodestar
 pkgname="${_node}-${_pkg}"
-pkgver=1.27.1
+pkgver=1.27.1.1
+_nodejs_c_kzg_ver="2.1.3"
+_commit="c8e2203c59526a50768757535068d97db1614c66"
 pkgrel=1
 _pkgdesc=(
   "TypeScript Implementation of Ethereum Consensus."
@@ -45,6 +59,7 @@ arch=(
   'mips'
   'pentium4'
   'i686'
+  'powerpc'
 )
 _http="https://github.com"
 _ns="chainsafe"
@@ -59,59 +74,52 @@ depends=(
 makedepends=(
   'npm'
 )
+if [[ "${_source}" == "github" ]]; then
+  depends+=(
+    "${_node}-c-kzg>=${_nodejs_c_kzg_ver}"
+  )
+  makedepends+=(
+    "yarn"
+  )
+fi
 provides=(
   "${_pkg}=${pkgver}"
 )
 conflicts=(
   "${_pkg}"
 )
+source=()
+sha256sums=()
 _npm="https://registry.npmjs.org"
 if [[ "${_source}" == "npm" ]]; then
-  _src="${_npm}/@${_ns}/${_pkg}/-/${_pkg}-${pkgver}.tgz"
-  _sum="22d6d7007fc40fa22d565d73e008a953fa0db2ff1c5a8b2e1a2c0ea203fb6174"
+  _tag_name="pkgver"
+  _tag="${pkgver}"
+  noextract+=(
+    "${_tarball}"
+  )
 elif [[ "${_source}" == "github" ]]; then
-  _src="${url}/archive/refs/tags/v${pkgver}.tar.gz"
-  _sum="ciao"
+  _tag_name="commit"
+  _tag="${_commit}"
+fi
+_tarname="${_Pkg}-${_tag}"
+if [[ "${_source}" == "npm" ]]; then
+  _tarball="${_tarname}.tgz"
+  _src="${_tarball}.tgz::${_npm}/@${_ns}/${_pkg}/-/${_tarname}.tgz"
+  _sum="22d6d7007fc40fa22d565d73e008a953fa0db2ff1c5a8b2e1a2c0ea203fb6174"
+  noextract=(
+    "${_tarball}.tgz"
+  )
+elif [[ "${_source}" == "github" ]]; then
+  _tarball="${_tarname}.zip"
+  _src="${_tarball}::${url}/archive/${_commit}.zip"
+  _sum="8dd01c27ac2e03eaa08dcd80f8be6554d000836d3065df9358231ff34b5c77ca"
 fi
 source=(
   "${_src}"
 )
-noextract=(
-  "${_pkg}-${pkgver}.tgz"
-)
 sha256sums=(
   "${_sum}"
 )
-
-_android_quirk() {
-  local \
-    _tools_bin \
-    _clang \
-    _compiler_dir \
-    _compiler
-  cd \
-    "${srcdir}/${_tarname}"
-  if [[ "${_os}" == "Android" ]] && \
-     [[ "${_arch}" == "armv7l" ]]; then
-    _clang="$( \
-      command \
-        -v \
-        clang)"
-    _tools_bin="undefined/toolchains/llvm/prebuilt/linux-x86_64/bin"
-    _compiler_dir="${srcdir}/${_tarname}/${_tools_bin}"
-    _compiler="${_compiler_dir}/armv7a-linux-androideabi24-clang"
-    mkdir \
-      -p \
-      "${_compiler_dir}"
-    ln \
-      -s \
-      "${_clang}" \
-      "${_compiler}" || \
-      true
-  fi
-  cd \
-    "${srcdir}/${_tarname}"
-}
 
 _android_gyp_quirk() {
   local \
@@ -142,13 +150,61 @@ _android_gyp_quirk() {
 
 prepare() {
   _android_gyp_quirk
-  # _android_quirk  
+}
+
+_usr_get() {
+  local \
+    _bin
+  _bin="$( \
+    dirname \
+      "$(command \
+           -v \
+           "env")")"
+  echo \
+    "$(dirname \
+         "${_bin}")"
+}
+
+_ckzg_build() {
+  local \
+    _node_path \
+    _npm_opts=()
+  _npm_opts+=(
+    --install-links="false"
+  )
+  _node_path="$( \
+    npm \
+      -g \
+      list | \
+      head \
+        -n \
+          1)/node_modules"
+  npm \
+    "${_npm_opts[@]}" \
+    install \
+      "${_node_path}/c-kzg"
+}
+
+build() {
+  cd \
+    "${_tarname}"
+  if [[ "${_source}" == "github" ]]; then
+    _c_kzg_build
+    yarn \
+      install
+    yarn \
+      run \
+        build
+    npm \
+      pack
+  fi
 }
 
 package() {
   local \
     _npmdir \
-    _npm_opts=() 
+    _npm_opts=() \
+    _src
   _npm_opts=(
     # --user
     #   root
@@ -156,17 +212,21 @@ package() {
     --prefix
       "${pkgdir}/usr"
   )
-  cd "${srcdir}"
   _npmdir="${pkgdir}/usr/lib/node_modules/"
   mkdir \
     -p \
     "${_npmdir}"
   cd \
     "${_npmdir}"
+  # if [[ "${_source}" == "github" ]]; then
+  #   _src="${srcdir}/${_tarname}/bindings/node.js"
+  # elif [[ "${_source}" == "npm" ]]; then
+  #   _src="${srcdir}/${_pkg}-${pkgver}.tgz"
+  # fi
+  _src="${srcdir}/${_tarname}/${_pkg}-${pkgver}.tgz"
   npm \
     install \
       "${_npm_opts[@]}" \
-      "${srcdir}/${_pkg}-${pkgver}.tgz"
-      # "${srcdir}/${_pkg}.js-${pkgver}"
+      "${_src}"
 }
 
