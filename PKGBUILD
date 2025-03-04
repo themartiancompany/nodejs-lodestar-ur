@@ -196,16 +196,24 @@ _c_kzg_build() {
       "${_node_path}/c-kzg"
 }
 
+_lodestar_build() {
+  echo \
+    "Building lodestar."
+  yarn \
+    install
+  yarn \
+    run \
+      build
+}
+
 build() {
   cd \
     "${_tarname}"
   if [[ "${_source}" == "github" ]]; then
     _c_kzg_build
-    yarn \
-      install
-    yarn \
-      run \
-        build
+    _lodestar_build
+    echo \
+      "Packaging lodestar."
     npm \
       pack
   fi
