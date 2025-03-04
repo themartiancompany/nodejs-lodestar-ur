@@ -205,7 +205,8 @@ _c_kzg_prepare() {
     cp \
       -r \
       "${_node_path}/c-kzg" \
-      "node_modules"
+      "node_modules" || \
+      true
   elif [[ "${_local_package_install_mode}" == "npm" ]]; then
     npm \
       install \
