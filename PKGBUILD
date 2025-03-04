@@ -7,7 +7,7 @@ _os="$( \
   uname \
     -o)"
 _node="nodejs"
-_source="npm"
+_source="github"
 _pkg="lodestar"
 pkgname="${_node}-${_pkg}"
 pkgver=1.27.1
@@ -38,6 +38,11 @@ depends=(
 makedepends=(
   'npm'
 )
+if [[ "${_source}" == "github" ]]; then
+  makedepends+=(
+    "yarn"
+  )
+fi
 provides=(
   "${_pkg}=${pkgver}"
 )
