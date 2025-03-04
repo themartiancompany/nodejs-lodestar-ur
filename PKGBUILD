@@ -187,6 +187,9 @@ _c_kzg_build() {
       head \
         -n \
           1)/node_modules"
+  echo \
+    "Installing c-kzg from local" \
+    "repository."
   npm \
     "${_npm_opts[@]}" \
     install \
