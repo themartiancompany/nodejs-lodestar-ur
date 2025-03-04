@@ -75,21 +75,19 @@ license=(
   "APACHE"
   "LGPL"
 )
-if [[ "${_os}" == "GNU/Linux" ]]; then
-  depends=(
-    "${_node}>=22"
-    "${_node}<23"
-  )
-elif [[ "${_os}" == "Android" ]]; then
-  depends=(
-    # Termux people don't add
-    # provides to their pacman packages
-    # https://github.com/termux-pacman/termux-packages/issues/38#issuecomment-1882637215
-    # Continuous integration for Life and DogeOS to replace all
-    # Termux environment speedly needs to be ready kinda asap
-    "${_node}-lts"
-  )
-fi
+# Termux people don't add
+# provides to their pacman packages so
+# installing nodejs-lts on Life and DogeOS
+# Android base will create issues to all
+# nodejs packages.
+# https://github.com/termux-pacman/termux-packages/issues/38#issuecomment-1882637215
+# So nothing, since they seem to keep wanting
+# their environment to be a google managed toy,
+# continuous integration to entirely replace their
+# environment needs to be ready kinda asap.
+depends=(
+  "${_node}-lts"
+)
 makedepends=(
   'npm'
 )
