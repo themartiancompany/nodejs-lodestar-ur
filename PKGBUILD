@@ -100,7 +100,7 @@ elif [[ "${_source}" == "github" ]]; then
   _tag_name="commit"
   _tag="${_commit}"
 fi
-_tarname="${_Pkg}-${_tag}"
+_tarname="${_pkg}-${_tag}"
 if [[ "${_source}" == "npm" ]]; then
   _tarball="${_tarname}.tgz"
   _src="${_tarball}.tgz::${_npm}/@${_ns}/${_pkg}/-/${_tarname}.tgz"
