@@ -75,10 +75,21 @@ license=(
   "APACHE"
   "LGPL"
 )
-depends=(
-  "${_node}>=22"
-  "${_node}<23"
-)
+if [[ "${_os}" == "GNU/Linux" ]]; then
+  depends=(
+    "${_node}>=22"
+    "${_node}<23"
+  )
+elif [[ "${_os}" == "Android" ]]; then
+  depends=(
+    # Termux people don't add
+    # provides to their pacman packages
+    # https://github.com/termux-pacman/termux-packages/issues/38#issuecomment-1882637215
+    # Continuous integration for Life and DogeOS to replace all
+    # Termux environment speedly needs to be ready kinda asap
+    "${_node}-lts"
+  )
+fi
 makedepends=(
   'npm'
 )
@@ -191,6 +202,7 @@ _c_kzg_prepare() {
   mkdir \
     -p \
     "node_modules"
+<<<<<<< HEAD
   if [[ "${_local_package_install_mode}" == "cp" ]]; then
     cp \
       -r \
@@ -229,6 +241,19 @@ _usr_get() {
   echo \
     "$(dirname \
          "${_bin}")"
+=======
+  yarn \
+    add \
+    "file:${_node_path}/c-kzg"
+  # cp \
+  #   -r \
+  #   "${_node_path}/c-kzg" \
+  #   "node_modules"
+  # npm \
+  #   "${_npm_opts[@]}" \
+  #   install \
+  #     "${_node_path}/c-kzg"
+>>>>>>> 2363c83ace43d8b582e75809191378137c3073f6
 }
 
 _lodestar_build() {
