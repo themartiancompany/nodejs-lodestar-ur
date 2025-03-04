@@ -76,8 +76,8 @@ license=(
   "LGPL"
 )
 depends=(
-  "${_node}>=20"
-  "${_node}<21"
+  "${_node}>=22"
+  "${_node}<23"
 )
 makedepends=(
   'npm'
