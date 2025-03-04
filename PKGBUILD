@@ -218,7 +218,7 @@ _c_kzg_prepare() {
     "( https://github.com/ChainSafe/lodestar/issues/7517 )."
   sed \
     -e \
-      "s/${_pattern}/${_replacement}/" \
+      "s%${_pattern}%${_replacement}%" \
     -i \
     "packages/beacon-node/package.json"
 }
