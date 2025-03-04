@@ -251,12 +251,11 @@ _lodestar_build() {
     "dependencies."
   yarn \
     install
-  # echo \
-  #   "Installing Lodestar" \
-  #   "dependencies."
-  # yarn \
-  #   run \
-  #     build
+  echo \
+    "Building Lodestar."
+  yarn \
+    run \
+      build
 }
 
 build() {
@@ -291,12 +290,14 @@ package() {
   cd \
     "${_npmdir}"
   if [[ "${_source}" == "github" ]]; then
-    _src="${srcdir}/${_tarname}/bindings/node.js"
+    # I am not sure this is gonna appear as a consequence
+    # of running yarn run 'build:bundle' actually
+    _src="${srcdir}/${_tarname}/${_pkg}-${pkgver}.tgz"
   elif [[ "${_source}" == "npm" ]]; then
     _src="${srcdir}/${_pkg}-${pkgver}.tgz"
-    npm \
-      install \
-        "${_npm_opts[@]}" \
-        "${_src}"
   fi
+  npm \
+    install \
+      "${_npm_opts[@]}" \
+      "${_src}"
 }
