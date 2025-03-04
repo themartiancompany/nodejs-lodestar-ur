@@ -61,8 +61,9 @@ arch=(
   'powerpc'
 )
 _http="https://github.com"
-_ns="chainsafe"
-url="${_http}/${_ns}/${_pkg}.js"
+# _ns="chainsafe"
+_ns="themartiancompany"
+url="${_http}/${_ns}/${_pkg}"
 license=(
   "APACHE"
   "LGPL"
