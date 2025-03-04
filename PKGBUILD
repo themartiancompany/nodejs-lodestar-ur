@@ -190,6 +190,8 @@ _c_kzg_build() {
   echo \
     "Installing c-kzg from local" \
     "repository."
+  cd \
+    "${srcdir}/${_tarname}"
   npm \
     "${_npm_opts[@]}" \
     install \
@@ -197,6 +199,8 @@ _c_kzg_build() {
 }
 
 _lodestar_build() {
+  cd \
+    "${srcdir}/${_tarname}"
   echo \
     "Building lodestar."
   yarn \
