@@ -157,34 +157,23 @@ _android_gyp_quirk() {
   fi
 }
 
-prepare() {
-  _android_gyp_quirk
-}
-
-_usr_get() {
-  local \
-    _bin
-  _bin="$( \
-    dirname \
-      "$(command \
-           -v \
-           "env")")"
-  echo \
-    "$(dirname \
-         "${_bin}")"
-}
-
-_c_kzg_build() {
+_c_kzg_prepare() {
   local \
     _node_path \
-    _npm_opts=()
-  _npm_opts+=(
-   # I'm nobody to say anything,
-   # but this npm program seems kinda
-   # untrustable in its naming and
-   # defaulting options choice
-   # https://github.com/npm/cli/issues/5965
-   # https://github.com/npm/cli/issues/5844
+    _npm_install_opts=() \
+    _local_package_install_mode \
+    _pattern \
+    _replacement
+  _pattern="\"c-kzg\": \"^2.1.3\""
+  _replacement="\"c-kzg\": \"file:../../node_modules/c-kzg\""
+  _local_package_install_mode="cp"
+  _npm_install_opts+=(
+    # I'm nobody to say anything,
+    # but this npm program seems kinda
+    # untrustable in its naming and
+    # defaulting options choice
+    # https://github.com/npm/cli/issues/5965
+    # https://github.com/npm/cli/issues/5844
     --install-links="false"
   )
   _node_path="$( \
@@ -202,38 +191,72 @@ _c_kzg_build() {
   mkdir \
     -p \
     "node_modules"
-  cp \
-    -r \
-    "${_node_path}/c-kzg" \
-    "node_modules"
-  # npm \
-  #   "${_npm_opts[@]}" \
-  #   install \
-  #     "${_node_path}/c-kzg"
+  if [[ "${_local_package_install_mode}" == "cp" ]]; then
+    cp \
+      -r \
+      "${_node_path}/c-kzg" \
+      "node_modules"
+  elif [[ "${_local_package_install_mode}" == "npm" ]]; then
+  npm \
+    install \
+      "${_npm_install_opts[@]}" \
+      "${_node_path}/c-kzg"
+  fi
+  echo \
+    "Patching 'packages/beacon-node'"
+    "'package.json' to use local c-kzg build. See" \
+    "( https://github.com/ChainSafe/lodestar/issues/7517 )."
+  sed \
+    -e \
+      "s/${_pattern}/${_replacement}/" \
+    -i \
+    "packages/beacon-node/package.json"
+}
+
+prepare() {
+  _android_gyp_quirk
+  _c_kzg_prepare
+}
+
+_usr_get() {
+  local \
+    _bin
+  _bin="$( \
+    dirname \
+      "$(command \
+           -v \
+           "env")")"
+  echo \
+    "$(dirname \
+         "${_bin}")"
 }
 
 _lodestar_build() {
   cd \
     "${srcdir}/${_tarname}"
   echo \
-    "Building lodestar."
+    "Installing Lodestar" \
+    "dependencies."
   yarn \
     install
-  yarn \
-    run \
-      build
+  # echo \
+  #   "Installing Lodestar" \
+  #   "dependencies."
+  # yarn \
+  #   run \
+  #     build
 }
 
 build() {
   cd \
     "${_tarname}"
   if [[ "${_source}" == "github" ]]; then
-    _c_kzg_build
     _lodestar_build
     echo \
-      "Creating npm package."
-    npm \
-      pack
+      "Creating bundle."
+    yarn \
+      run \
+        "build:bundle"
   fi
 }
 
@@ -255,15 +278,13 @@ package() {
     "${_npmdir}"
   cd \
     "${_npmdir}"
-  # if [[ "${_source}" == "github" ]]; then
-  #   _src="${srcdir}/${_tarname}/bindings/node.js"
-  # elif [[ "${_source}" == "npm" ]]; then
-  #   _src="${srcdir}/${_pkg}-${pkgver}.tgz"
-  # fi
-  _src="${srcdir}/${_tarname}/${_pkg}-${pkgver}.tgz"
-  npm \
-    install \
-      "${_npm_opts[@]}" \
-      "${_src}"
+  if [[ "${_source}" == "github" ]]; then
+    _src="${srcdir}/${_tarname}/bindings/node.js"
+  elif [[ "${_source}" == "npm" ]]; then
+    _src="${srcdir}/${_pkg}-${pkgver}.tgz"
+    npm \
+      install \
+        "${_npm_opts[@]}" \
+        "${_src}"
+  fi
 }
-
