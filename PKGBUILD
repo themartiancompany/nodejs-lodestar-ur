@@ -112,7 +112,7 @@ if [[ "${_source}" == "npm" ]]; then
 elif [[ "${_source}" == "github" ]]; then
   _tarball="${_tarname}.zip"
   _src="${_tarball}::${url}/archive/${_commit}.zip"
-  _sum="8dd01c27ac2e03eaa08dcd80f8be6554d000836d3065df9358231ff34b5c77ca"
+  _sum="85da5d2ba00323eeeddbcdb9ef7a05b1ea6ab59dab5f0211b5c8f494291d3603"
 fi
 source=(
   "${_src}"
