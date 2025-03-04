@@ -199,20 +199,20 @@ _c_kzg_prepare() {
     "repository."
   cd \
     "${srcdir}/${_tarname}"
-  mkdir \
-    -p \
-    "node_modules"
-<<<<<<< HEAD
   if [[ "${_local_package_install_mode}" == "cp" ]]; then
+    mkdir \
+      -p \
+      "node_modules" || \
+      true
     cp \
       -r \
       "${_node_path}/c-kzg" \
       "node_modules"
   elif [[ "${_local_package_install_mode}" == "npm" ]]; then
-  npm \
-    install \
-      "${_npm_install_opts[@]}" \
-      "${_node_path}/c-kzg"
+    npm \
+      install \
+        "${_npm_install_opts[@]}" \
+        "${_node_path}/c-kzg"
   fi
   echo \
     "Patching 'packages/beacon-node'"
@@ -227,7 +227,9 @@ _c_kzg_prepare() {
 
 prepare() {
   _android_gyp_quirk
-  _c_kzg_prepare
+  if [[ "${_source}" = "github" ]]; then
+    _c_kzg_prepare
+  fi
 }
 
 _usr_get() {
@@ -241,19 +243,6 @@ _usr_get() {
   echo \
     "$(dirname \
          "${_bin}")"
-=======
-  yarn \
-    add \
-    "file:${_node_path}/c-kzg"
-  # cp \
-  #   -r \
-  #   "${_node_path}/c-kzg" \
-  #   "node_modules"
-  # npm \
-  #   "${_npm_opts[@]}" \
-  #   install \
-  #     "${_node_path}/c-kzg"
->>>>>>> 2363c83ace43d8b582e75809191378137c3073f6
 }
 
 _lodestar_build() {
