@@ -213,7 +213,7 @@ build() {
     _c_kzg_build
     _lodestar_build
     echo \
-      "Packaging lodestar."
+      "Creating npm package."
     npm \
       pack
   fi
