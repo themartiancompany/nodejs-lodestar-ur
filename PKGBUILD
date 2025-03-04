@@ -215,7 +215,7 @@ _c_kzg_prepare() {
         "${_node_path}/c-kzg"
   fi
   echo \
-    "Patching 'packages/beacon-node'"
+    "Patching 'packages/beacon-node'" \
     "'package.json' to use local c-kzg build. See" \
     "( https://github.com/ChainSafe/lodestar/issues/7517 )."
   sed \
