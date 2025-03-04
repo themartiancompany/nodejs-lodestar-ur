@@ -173,7 +173,7 @@ _usr_get() {
          "${_bin}")"
 }
 
-_ckzg_build() {
+_c_kzg_build() {
   local \
     _node_path \
     _npm_opts=()
